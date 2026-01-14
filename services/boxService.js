@@ -8,6 +8,12 @@ const calculateTotalPrice = async (itemIds, userId) => {
   return items.reduce((sum, item) => sum + item.costPrice, 0);
 };
 
+exports.getAllGlobalBoxes = async () => {
+  return await Box.find()
+    .populate('items') // Show the items inside the box
+    .sort({ createdAt: -1 });
+};
+
 exports.getAllBoxes = async (userId) => {
   // Filter boxes by the internal user ID
   return await Box.find({ user: userId }).populate('items').sort({ createdAt: -1 });
@@ -67,65 +73,3 @@ exports.deleteBox = async (id, userId) => {
   // Only allow deletion if the user owns the box
   return await Box.findOneAndDelete({ _id: id, user: userId });
 };
-
-// const Box = require('../models/Box');
-// const Item = require('../models/Item');
-
-// exports.getAllBoxes = async () => {
-//   return await Box.find().populate('items').sort({ createdAt: -1 });
-// };
-
-// const calculateTotalPrice = async (itemIds) => {
-//   const items = await Item.find({ _id: { $in: itemIds } });
-//   return items.reduce((sum, item) => sum + item.costPrice, 0);
-// };
-
-// exports.createBox = async (data) => {
-//   if (data.items && data.items.length > 0) {
-//     data.price = await calculateTotalPrice(data.items);
-//   } else {
-//     data.price = 0;
-//   }
-
-//   const newBox = await Box.create(data);
-//   return await newBox.populate('items');
-// };
-
-// exports.getBoxById = async (id) => {
-//   return await Box.findById(id).populate('items');
-// };
-
-// exports.updateBox = async (id, data) => {
-//   let itemIdsToCheck = data.items;
-
-//   if (!itemIdsToCheck) {
-//     const existingBox = await Box.findById(id);
-//     itemIdsToCheck = existingBox.items;
-//   }
-//   if (itemIdsToCheck && itemIdsToCheck.length > 0) {
-//     data.price = await calculateTotalPrice(itemIdsToCheck);
-//   }
-
-//   return await Box.findByIdAndUpdate(id, data, { new: true }).populate('items');
-// };
-
-// exports.patchBoxStatus = async (id, status) => {
-//   const existingBox = await Box.findById(id);
-//   if (!existingBox) {
-//     throw new Error('Box not found');
-//   }
-
-//   const correctPrice = await calculateTotalPrice(existingBox.items);
-//   return await Box.findByIdAndUpdate(
-//     id,
-//     {
-//       status: status,
-//       price: correctPrice,
-//     },
-//     { new: true }
-//   ).populate('items');
-// };
-
-// exports.deleteBox = async (id) => {
-//   return await Box.findByIdAndDelete(id);
-// };
